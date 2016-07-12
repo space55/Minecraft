@@ -107,7 +107,7 @@ public class Start extends SimpleApplication implements ActionListener
 		World.init();
 		checkForSaved();
 
-		// World.saveChunks();
+		World.saveChunks();
 
 		/* Drop shadows */
 		/*final int SHADOWMAP_SIZE = 1024;
