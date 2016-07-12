@@ -41,6 +41,8 @@ public class Start extends SimpleApplication implements ActionListener
 	private Vector3f camDir = new Vector3f();
 	private Vector3f camLeft = new Vector3f();
 
+	private Vector3f startLoc = new Vector3f(0f, 255f, 0f);
+
 	public static void main(String[] args)
 	{
 		app = new Start();
@@ -75,33 +77,18 @@ public class Start extends SimpleApplication implements ActionListener
 	@Override
 	public void simpleInitApp()
 	{
-		/*
-		 * Box b = new Box(1, 1, 1); // create cube shape
-		 * Geometry geom = new Geometry("Box", b); // create cube geometry from
-		 * the
-		 * // shape
-		 * Material mat = new Material(assetManager,
-		 * "Common/MatDefs/Misc/Unshaded.j3md"); // create
-		 * // a
-		 * // simple
-		 * // material
-		 * mat.setColor("Color", ColorRGBA.Blue); // set color of material to
-		 * blue
-		 * geom.setMaterial(mat); // set the cube's material
-		 * rootNode.attachChild(geom); // make the cube appear in the scene
-		 */
 
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
 
 		setUpKeys();
 
-		capsuleShape = new CapsuleCollisionShape(1.5f, 6f, 1);
+		capsuleShape = new CapsuleCollisionShape(1.5f, 2f, 1);
 		player = new CharacterControl(capsuleShape, 0.05f);
 		player.setJumpSpeed(20);
 		player.setFallSpeed(30);
 		player.setGravity(30);
-		player.setPhysicsLocation(new Vector3f(0, 10, 0));
+		player.setPhysicsLocation(startLoc);
 		bulletAppState.getPhysicsSpace().add(player);
 
 		world = new Node("World");
@@ -134,21 +121,6 @@ public class Start extends SimpleApplication implements ActionListener
 		FilterPostProcessor fpp1 = new FilterPostProcessor(assetManager);
 		fpp1.addFilter(dlsf);
 		viewPort.addProcessor(fpp1);*/
-
-		/*
-		 * while (Thread.activeCount() > 4)
-		 * {
-		 * try
-		 * {
-		 * Thread.sleep(200);
-		 * }
-		 * catch (InterruptedException e)
-		 * {
-		 * // TODO Auto-generated catch block
-		 * e.printStackTrace();
-		 * }
-		 * }
-		 */
 	}
 
 	@Override
