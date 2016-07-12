@@ -7,6 +7,9 @@ import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -21,7 +24,7 @@ import jme3tools.optimize.GeometryBatchFactory;
 import world.TerrainGenerator;
 import world.World;
 
-public class Start extends SimpleApplication
+public class Start extends SimpleApplication implements ActionListener
 {
 	private static Start app;
 
@@ -31,6 +34,12 @@ public class Start extends SimpleApplication
 	private static BulletAppState bulletAppState;
 	private static CharacterControl player;
 	private static CapsuleCollisionShape capsuleShape;
+
+	private Vector3f walkDirection = new Vector3f();
+	private boolean left = false, right = false, up = false, down = false;
+
+	private Vector3f camDir = new Vector3f();
+	private Vector3f camLeft = new Vector3f();
 
 	public static void main(String[] args)
 	{
@@ -85,6 +94,8 @@ public class Start extends SimpleApplication
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
 
+		setUpKeys();
+
 		capsuleShape = new CapsuleCollisionShape(1.5f, 6f, 1);
 		player = new CharacterControl(capsuleShape, 0.05f);
 		player.setJumpSpeed(20);
@@ -100,8 +111,6 @@ public class Start extends SimpleApplication
 		SSAOFilter ssaoFilter = new SSAOFilter(12.94f, 43.92f, 0.33f, 0.61f);
 		fpp.addFilter(ssaoFilter);
 		viewPort.addProcessor(fpp);
-
-		flyCam.setMoveSpeed(20f);
 
 		DirectionalLight sun = new DirectionalLight();
 		sun.setColor(ColorRGBA.White);
@@ -145,11 +154,27 @@ public class Start extends SimpleApplication
 	@Override
 	public void simpleUpdate(float tpf)
 	{
-		/*while (toAttach.size() > 0)
+		camDir.set(cam.getDirection()).multLocal(0.6f);
+		camLeft.set(cam.getLeft()).multLocal(0.4f);
+		walkDirection.set(0, 0, 0);
+		if (left)
 		{
-			world.attachChild(toAttach.remove(0));
+			walkDirection.addLocal(camLeft);
 		}
-		optimizeWorld();*/
+		if (right)
+		{
+			walkDirection.addLocal(camLeft.negate());
+		}
+		if (up)
+		{
+			walkDirection.addLocal(camDir);
+		}
+		if (down)
+		{
+			walkDirection.addLocal(camDir.negate());
+		}
+		player.setWalkDirection(walkDirection);
+		cam.setLocation(player.getPhysicsLocation());
 	}
 
 	public static void checkForSaved()
@@ -192,5 +217,71 @@ public class Start extends SimpleApplication
 	public static BulletAppState getBAS()
 	{
 		return bulletAppState;
+	}
+
+	private void setUpKeys()
+	{
+		inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
+		inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
+		inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
+		inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
+		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
+		inputManager.addListener(this, "Left");
+		inputManager.addListener(this, "Right");
+		inputManager.addListener(this, "Up");
+		inputManager.addListener(this, "Down");
+		inputManager.addListener(this, "Jump");
+	}
+
+	public void onAction(String binding, boolean value, float tpf)
+	{
+		if (binding.equals("Left"))
+		{
+			if (value)
+			{
+				left = true;
+			}
+			else
+			{
+				left = false;
+			}
+		}
+		else if (binding.equals("Right"))
+		{
+			if (value)
+			{
+				right = true;
+			}
+			else
+			{
+				right = false;
+			}
+		}
+		else if (binding.equals("Up"))
+		{
+			if (value)
+			{
+				up = true;
+			}
+			else
+			{
+				up = false;
+			}
+		}
+		else if (binding.equals("Down"))
+		{
+			if (value)
+			{
+				down = true;
+			}
+			else
+			{
+				down = false;
+			}
+		}
+		else if (binding.equals("Jump"))
+		{
+			player.jump();
+		}
 	}
 }
