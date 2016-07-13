@@ -43,6 +43,12 @@ public class Start extends SimpleApplication implements ActionListener
 
 	private Vector3f startLoc = new Vector3f(0f, 255f, 0f);
 
+	private static boolean shouldCheckForSaved = false;
+
+	private static int fps_max = 32;
+	private static long mspf = 1000 / fps_max;
+	long time = 0;
+
 	public static void main(String[] args)
 	{
 		app = new Start();
@@ -82,6 +88,8 @@ public class Start extends SimpleApplication implements ActionListener
 		stateManager.attach(bulletAppState);
 
 		setUpKeys();
+		bulletAppState.setDebugEnabled(true);
+		// bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
 
 		capsuleShape = new CapsuleCollisionShape(1.5f, 2f, 1);
 		player = new CharacterControl(capsuleShape, 0.05f);
@@ -105,7 +113,15 @@ public class Start extends SimpleApplication implements ActionListener
 		rootNode.addLight(sun);
 
 		World.init();
-		checkForSaved();
+		TerrainGenerator.init();
+		if (shouldCheckForSaved)
+		{
+			checkForSaved();
+		}
+		else
+		{
+			generate();
+		}
 
 		World.saveChunks();
 
@@ -147,13 +163,28 @@ public class Start extends SimpleApplication implements ActionListener
 		}
 		player.setWalkDirection(walkDirection);
 		cam.setLocation(player.getPhysicsLocation());
+
+		long t = System.currentTimeMillis();
+		long s = mspf - (t - time);
+		System.out.println(s);
+		try
+		{
+			if (s > 0)
+			{
+				Thread.sleep(s);
+			}
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		time = System.currentTimeMillis();
 	}
 
 	public static void checkForSaved()
 	{
 		if (!ChunkReaderThread.hasSaved())
 		{
-			TerrainGenerator.init();
 			generate();
 		}
 		else

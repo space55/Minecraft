@@ -19,6 +19,9 @@ public abstract class Block
 	protected int z;
 	protected int y;
 
+	private int xId;
+	private int zId;
+
 	private boolean surxp = false;
 	private boolean surxm = false;
 	private boolean suryp = false;
@@ -47,6 +50,8 @@ public abstract class Block
 		this.x = x;
 		this.z = z;
 		this.y = y;
+		xId = Math.abs((int) (this.x - parent.xId * 16));
+		zId = Math.abs((int) (this.z - parent.yId * 16));
 		this.parent = parent;
 		id = getId();
 	}
@@ -154,7 +159,7 @@ public abstract class Block
 				xp.setLocalRotation(rot);
 				// Start.attach(xp);
 				// indxp = Start.getWN().attachChild(xp);
-				indzm = parent.getNode().attachChild(xp);
+				parent.getNode().attachChild(xp);
 			}
 			if (!surxm)
 			{
@@ -166,7 +171,7 @@ public abstract class Block
 				xm.setLocalRotation(rot);
 				// Start.attach(xm);
 				// indxm = Start.getWN().attachChild(xm);
-				indzm = parent.getNode().attachChild(xm);
+				parent.getNode().attachChild(xm);
 			}
 			if (!suryp)
 			{
@@ -178,7 +183,7 @@ public abstract class Block
 				yp.setLocalRotation(rot);
 				// Start.attach(yp);
 				// indyp = Start.getWN().attachChild(yp);
-				indzm = parent.getNode().attachChild(yp);
+				parent.getNode().attachChild(yp);
 			}
 			if (!surym)
 			{
@@ -190,7 +195,7 @@ public abstract class Block
 				ym.setLocalRotation(rot);
 				// Start.attach(ym);
 				// indym = Start.getWN().attachChild(ym);
-				indzm = parent.getNode().attachChild(ym);
+				parent.getNode().attachChild(ym);
 			}
 			if (!surzp)
 			{
@@ -202,7 +207,7 @@ public abstract class Block
 				zp.setLocalRotation(rot);
 				// Start.attach(zp);
 				// indzp = Start.getWN().attachChild(zp);
-				indzm = parent.getNode().attachChild(zp);
+				parent.getNode().attachChild(zp);
 			}
 			if (!surzm)
 			{
@@ -214,7 +219,7 @@ public abstract class Block
 				zm.setLocalRotation(rot);
 				// Start.attach(zm);
 				// indzm = Start.getWN().attachChild(zm);
-				indzm = parent.getNode().attachChild(zm);
+				parent.getNode().attachChild(zm);
 			}
 		}
 	}
@@ -224,8 +229,17 @@ public abstract class Block
 		int xS = TerrainGenerator.getXS();
 		int zS = TerrainGenerator.getZS();
 		int yS = TerrainGenerator.getYS();
-		int x = (int) (this.x - parent.xId * 16);
-		int z = (int) (this.z - parent.yId * 16);
+		// int x = (int) (this.x - parent.xId * 16);
+		// int z = (int) (this.z - parent.yId * 16);
+
+		int x = xId;
+		int z = zId;
+		/*System.out.println(x);
+		System.out.println(z);
+		System.out.println(xId);
+		System.out.println(zId);
+		System.out.println();*/
+
 		surxm = x > 0 && !(parent.getBlock(x - 1, z, y).isTrans());
 		surzm = z > 0 && !(parent.getBlock(x, z - 1, y).isTrans());
 		surym = y > 0 && !(parent.getBlock(x, z, y - 1).isTrans());
