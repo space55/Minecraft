@@ -3,6 +3,7 @@ package world;
 import bknd.ChunkReaderThread;
 import bknd.ChunkSaver;
 import bknd.ChunkSaverThread;
+import block.Block;
 import client.Start;
 import func.NegArray;
 
@@ -92,6 +93,15 @@ public class World
 	public static Chunk getChunk(int x, int y)
 	{
 		return chunks.get(x, y);
+	}
+
+	public static Block getBlock(int x, int z, int y)
+	{
+		int cx = x / 16 - x % 16;
+		int cy = z / 16 - z % 16;
+		int bx = Math.abs(x % 16);
+		int bz = Math.abs(z % 16);
+		return chunks.get(cx, cy).getBlock(bx, bz, y);
 	}
 
 	public static void reRenderEdges()

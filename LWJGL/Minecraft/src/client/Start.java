@@ -6,7 +6,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
-import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.control.BetterCharacterControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -32,7 +32,7 @@ public class Start extends SimpleApplication implements ActionListener
 	private static ArrayList<Spatial> toAttach = new ArrayList<Spatial>();
 
 	private static BulletAppState bulletAppState;
-	private static CharacterControl player;
+	private static BetterCharacterControl player;
 	private static CapsuleCollisionShape capsuleShape;
 
 	private Vector3f walkDirection = new Vector3f();
@@ -40,10 +40,12 @@ public class Start extends SimpleApplication implements ActionListener
 
 	private Vector3f camDir = new Vector3f();
 	private Vector3f camLeft = new Vector3f();
+	public static int pid;
 
 	private Vector3f startLoc = new Vector3f(0f, 255f, 0f);
 
 	private static boolean shouldCheckForSaved = false;
+	private Node playerNode;
 
 	private static int fps_max = 32;
 	private static long mspf = 1000 / fps_max;
@@ -80,6 +82,11 @@ public class Start extends SimpleApplication implements ActionListener
 		return Thread.currentThread();
 	}
 
+	public static BetterCharacterControl getPlayer()
+	{
+		return player;
+	}
+
 	@Override
 	public void simpleInitApp()
 	{
@@ -90,14 +97,17 @@ public class Start extends SimpleApplication implements ActionListener
 		setUpKeys();
 		// bulletAppState.setDebugEnabled(true);
 		// bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
+		rootNode.attachChild(playerNode);
 
 		capsuleShape = new CapsuleCollisionShape(1.5f, 2f, 1);
-		player = new CharacterControl(capsuleShape, 0.05f);
+		player = new BetterCharacterControl(capsuleShape, 0.05f);
+		player.setGravity();
 		player.setJumpSpeed(20);
-		player.setFallSpeed(30);
-		player.setGravity(30);
+		player.setFallSpeed(100);
+		player.setGravity(32);
 		player.setPhysicsLocation(startLoc);
-		bulletAppState.getPhysicsSpace().add(player);
+		bulletAppState.getPhy
+		sicsSpace().add(player);
 
 		world = new Node("World");
 		rootNode.attachChild(world);
@@ -155,18 +165,18 @@ public class Start extends SimpleApplication implements ActionListener
 		}
 		if (up)
 		{
-			walkDirection.addLocal(camDir);
+			walkDirection = new Vector3f(cam.getDirection().getX(), 0, cam.getDirection().getZ());
 		}
 		if (down)
 		{
-			walkDirection.addLocal(camDir.negate());
+			walkDirection = new Vector3f(-cam.getDirection().getX(), 0, -cam.getDirection().getZ());
 		}
 		player.setWalkDirection(walkDirection);
 		cam.setLocation(player.getPhysicsLocation());
 
 		long t = System.currentTimeMillis();
 		long s = mspf - (t - time);
-		System.out.println(s);
+		// System.out.println(s);
 		try
 		{
 			if (s > 0)
@@ -229,6 +239,8 @@ public class Start extends SimpleApplication implements ActionListener
 		inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
 		inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
 		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
+		inputManager.deleteMapping("FLYCAM_UP");
+		inputManager.deleteMapping("FLYCAM_DOWN");
 		inputManager.addListener(this, "Left");
 		inputManager.addListener(this, "Right");
 		inputManager.addListener(this, "Up");
