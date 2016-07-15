@@ -1,8 +1,7 @@
 package world;
 
-import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
@@ -11,6 +10,7 @@ import block.Air;
 import block.Block;
 import block.Stone;
 import client.Start;
+import jme3tools.optimize.GeometryBatchFactory;
 
 public class Chunk
 {
@@ -194,21 +194,30 @@ public class Chunk
 		}
 		onUpdate();
 		long time = System.currentTimeMillis();
+		optimizeChunk();
 		Start.optimizeWorld();
 		System.out.println(System.currentTimeMillis() - time);
 
 		System.out.println("Updated All for " + xId + ", " + yId);
 	}
 
+	private void optimizeChunk()
+	{
+		GeometryBatchFactory.optimize(chunk);
+	}
+
 	public void onUpdate()
 	{
-		chunkModel = (Spatial) chunk;
-		chunk.attachChild(chunkModel);
-		CollisionShape sceneShape = CollisionShapeFactory.createMeshShape(chunkModel);
-		collisionLandscape = new RigidBodyControl(sceneShape, 0);
-		chunkModel.addControl(collisionLandscape);
+		// chunkModel = (Spatial) chunk;
+		// chunk.attachChild(chunkModel);
+		// CollisionShape sceneShape =
+		// CollisionShapeFactory.createMeshShape(chunkModel);
+		// collisionLandscape = new RigidBodyControl(sceneShape, 0);
+		// chunkModel.addControl(collisionLandscape);
+		// Start.getBAS().getPhysicsSpace().add(collisionLandscape);
+		chunk.setModelBound(new BoundingBox());
+		chunk.updateModelBound();
 
-		Start.getBAS().getPhysicsSpace().add(collisionLandscape);
 	}
 
 	public void generate1()

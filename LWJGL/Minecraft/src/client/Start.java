@@ -88,7 +88,7 @@ public class Start extends SimpleApplication implements ActionListener
 		stateManager.attach(bulletAppState);
 
 		setUpKeys();
-		bulletAppState.setDebugEnabled(true);
+		// bulletAppState.setDebugEnabled(true);
 		// bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
 
 		capsuleShape = new CapsuleCollisionShape(1.5f, 2f, 1);

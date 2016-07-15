@@ -45,6 +45,8 @@ public abstract class Block
 
 	Chunk parent;
 
+	// private Box b;
+
 	public Block(int x, int z, int y, Chunk parent)
 	{
 		this.x = x;
@@ -54,6 +56,7 @@ public abstract class Block
 		zId = Math.abs((int) (this.z - parent.yId * 16));
 		this.parent = parent;
 		id = getId();
+		// b = new Box(x, y, z);
 	}
 
 	public void render()
@@ -222,6 +225,11 @@ public abstract class Block
 				parent.getNode().attachChild(zm);
 			}
 		}
+		// if (!isSurrounded())
+		// {
+		// b.setBound(new BoundingBox());
+		// b.updateBound();
+		// }
 	}
 
 	public void isSurroundedCalc()
