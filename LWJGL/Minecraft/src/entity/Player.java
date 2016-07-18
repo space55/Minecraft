@@ -4,6 +4,7 @@ import com.jme3.bullet.control.BetterCharacterControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
@@ -14,7 +15,8 @@ import client.Start;
 
 public class Player extends Entity implements ActionListener
 {
-	private static BetterCharacterControl player;
+	private BetterCharacterControl player;
+	private static Material mat;
 
 	public static Vector3f gravity = new Vector3f(0.0f, 9.81f, 0.0f);
 	private Vector3f startLoc = new Vector3f(0f, 255f, 0f);
@@ -24,15 +26,17 @@ public class Player extends Entity implements ActionListener
 	private Vector3f walkDirection = new Vector3f();
 	private boolean left = false, right = false, up = false, down = false;
 
-	public static int pid;
+	public int pid;
 
 	private Spatial s;
-	private static Camera cam;
+	private Camera cam;
 
 	public Player()
 	{
 		cam = Start.app.getCam();
-		s = new Geometry("Camera", new Quad(1, 1));
+		s = new Geometry("CameraGeometry", new Quad(1, 1));
+		mat = new Material(Start.getAM(), "Common/MatDefs/Misc/Unshaded.j3md");
+		s.setMaterial(mat);
 		s.setLocalTranslation(startLoc);
 		cam.setLocation(startLoc);
 		// System.out.println(s.toString());
@@ -149,9 +153,10 @@ public class Player extends Entity implements ActionListener
 	public void createNew()
 	{
 		Start.getRN().attachChild(s);
-		player = new BetterCharacterControl();
+		player = new BetterCharacterControl(1, 2, 100);
 		player.setGravity(gravity);
 		s.addControl(player);
+		setUpKeys();
 	}
 
 }
