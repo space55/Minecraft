@@ -5,47 +5,35 @@ import java.util.ArrayList;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
-import com.jme3.bullet.control.BetterCharacterControl;
-import com.jme3.input.KeyInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.InputManager;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.ssao.SSAOFilter;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 import bknd.ChunkReaderThread;
 import bknd.GenerationThread;
+import entity.Player;
 import jme3tools.optimize.GeometryBatchFactory;
 import world.TerrainGenerator;
 import world.World;
 
-public class Start extends SimpleApplication implements ActionListener
+public class Start extends SimpleApplication
 {
-	private static Start app;
+	public static Start app;
 
 	private static Node world;
 	private static ArrayList<Spatial> toAttach = new ArrayList<Spatial>();
 
 	private static BulletAppState bulletAppState;
-	private static BetterCharacterControl player;
-	private static CapsuleCollisionShape capsuleShape;
 
-	private Vector3f walkDirection = new Vector3f();
-	private boolean left = false, right = false, up = false, down = false;
-
-	private Vector3f camDir = new Vector3f();
-	private Vector3f camLeft = new Vector3f();
-	public static int pid;
-
-	private Vector3f startLoc = new Vector3f(0f, 255f, 0f);
+	private static Player player;
 
 	private static boolean shouldCheckForSaved = false;
-	private Node playerNode;
 
 	private static int fps_max = 32;
 	private static long mspf = 1000 / fps_max;
@@ -82,11 +70,6 @@ public class Start extends SimpleApplication implements ActionListener
 		return Thread.currentThread();
 	}
 
-	public static BetterCharacterControl getPlayer()
-	{
-		return player;
-	}
-
 	@Override
 	public void simpleInitApp()
 	{
@@ -94,20 +77,12 @@ public class Start extends SimpleApplication implements ActionListener
 		bulletAppState = new BulletAppState();
 		stateManager.attach(bulletAppState);
 
-		setUpKeys();
+		player = new Player();
+		player.setUpKeys();
+		player.createNew();
+		flyCam.setMoveSpeed(0);
 		// bulletAppState.setDebugEnabled(true);
 		// bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
-		rootNode.attachChild(playerNode);
-
-		capsuleShape = new CapsuleCollisionShape(1.5f, 2f, 1);
-		player = new BetterCharacterControl(capsuleShape, 0.05f);
-		player.setGravity();
-		player.setJumpSpeed(20);
-		player.setFallSpeed(100);
-		player.setGravity(32);
-		player.setPhysicsLocation(startLoc);
-		bulletAppState.getPhy
-		sicsSpace().add(player);
 
 		world = new Node("World");
 		rootNode.attachChild(world);
@@ -136,43 +111,23 @@ public class Start extends SimpleApplication implements ActionListener
 		World.saveChunks();
 
 		/* Drop shadows */
-		/*final int SHADOWMAP_SIZE = 1024;
-		DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE, 3);
-		dlsr.setLight(sun);
-		viewPort.addProcessor(dlsr);
-		
-		DirectionalLightShadowFilter dlsf = new DirectionalLightShadowFilter(assetManager, SHADOWMAP_SIZE, 3);
-		dlsf.setLight(sun);
-		dlsf.setEnabled(true);
-		FilterPostProcessor fpp1 = new FilterPostProcessor(assetManager);
-		fpp1.addFilter(dlsf);
-		viewPort.addProcessor(fpp1);*/
+		/*
+		 * final int SHADOWMAP_SIZE = 1024; DirectionalLightShadowRenderer dlsr
+		 * = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE,
+		 * 3); dlsr.setLight(sun); viewPort.addProcessor(dlsr);
+		 * 
+		 * DirectionalLightShadowFilter dlsf = new
+		 * DirectionalLightShadowFilter(assetManager, SHADOWMAP_SIZE, 3);
+		 * dlsf.setLight(sun); dlsf.setEnabled(true); FilterPostProcessor fpp1 =
+		 * new FilterPostProcessor(assetManager); fpp1.addFilter(dlsf);
+		 * viewPort.addProcessor(fpp1);
+		 */
 	}
 
 	@Override
 	public void simpleUpdate(float tpf)
 	{
-		camDir.set(cam.getDirection()).multLocal(0.6f);
-		camLeft.set(cam.getLeft()).multLocal(0.4f);
-		walkDirection.set(0, 0, 0);
-		if (left)
-		{
-			walkDirection.addLocal(camLeft);
-		}
-		if (right)
-		{
-			walkDirection.addLocal(camLeft.negate());
-		}
-		if (up)
-		{
-			walkDirection = new Vector3f(cam.getDirection().getX(), 0, cam.getDirection().getZ());
-		}
-		if (down)
-		{
-			walkDirection = new Vector3f(-cam.getDirection().getX(), 0, -cam.getDirection().getZ());
-		}
-		player.setWalkDirection(walkDirection);
-		cam.setLocation(player.getPhysicsLocation());
+		player.onLoop();
 
 		long t = System.currentTimeMillis();
 		long s = mspf - (t - time);
@@ -232,71 +187,13 @@ public class Start extends SimpleApplication implements ActionListener
 		return bulletAppState;
 	}
 
-	private void setUpKeys()
+	public Camera getCam()
 	{
-		inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
-		inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
-		inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
-		inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
-		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
-		inputManager.deleteMapping("FLYCAM_UP");
-		inputManager.deleteMapping("FLYCAM_DOWN");
-		inputManager.addListener(this, "Left");
-		inputManager.addListener(this, "Right");
-		inputManager.addListener(this, "Up");
-		inputManager.addListener(this, "Down");
-		inputManager.addListener(this, "Jump");
+		return cam;
 	}
 
-	public void onAction(String binding, boolean value, float tpf)
+	public InputManager getim()
 	{
-		if (binding.equals("Left"))
-		{
-			if (value)
-			{
-				left = true;
-			}
-			else
-			{
-				left = false;
-			}
-		}
-		else if (binding.equals("Right"))
-		{
-			if (value)
-			{
-				right = true;
-			}
-			else
-			{
-				right = false;
-			}
-		}
-		else if (binding.equals("Up"))
-		{
-			if (value)
-			{
-				up = true;
-			}
-			else
-			{
-				up = false;
-			}
-		}
-		else if (binding.equals("Down"))
-		{
-			if (value)
-			{
-				down = true;
-			}
-			else
-			{
-				down = false;
-			}
-		}
-		else if (binding.equals("Jump"))
-		{
-			player.jump();
-		}
+		return inputManager;
 	}
 }

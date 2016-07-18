@@ -16,11 +16,8 @@ public class PlayerCollision
 {
 	private static final double G = 9.81;
 
-	public static Vector3f gravity = new Vector3f(0.0f, 9.81f, 0.0f);
-
 	public static void check()
 	{
-		Start.getRN().getchild(Start.getRN().getChildIndex(Start.getPlayer())).
 		float px = p.x;
 		float pz = p.z;
 		float py = p.y;
