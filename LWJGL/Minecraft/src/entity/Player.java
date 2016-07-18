@@ -74,11 +74,12 @@ public class Player extends Entity implements ActionListener
 			walkDirection = new Vector3f(-cam.getDirection().getX(), 0, -cam.getDirection().getZ());
 		}
 		player.setWalkDirection(walkDirection);
-		// cam.setLocation(player.s);
+		cam.setLocation(s.getLocalTranslation());
 	}
 
 	public void onAction(String binding, boolean value, float tpf)
 	{
+		System.out.println("Got binding " + binding);
 		if (binding.equals("Left"))
 		{
 			if (value)
@@ -152,6 +153,7 @@ public class Player extends Entity implements ActionListener
 
 	public void createNew()
 	{
+		System.out.println("Making New");
 		Start.getRN().attachChild(s);
 		player = new BetterCharacterControl(1, 2, 100);
 		player.setGravity(gravity);

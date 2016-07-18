@@ -35,7 +35,7 @@ public class Start extends SimpleApplication
 
 	private static boolean shouldCheckForSaved = false;
 
-	private static int fps_max = 32;
+	private static int fps_max = 120;
 	private static long mspf = 1000 / fps_max;
 	long time = 0;
 
@@ -78,9 +78,7 @@ public class Start extends SimpleApplication
 		stateManager.attach(bulletAppState);
 
 		player = new Player();
-		player.setUpKeys();
 		player.createNew();
-		flyCam.setMoveSpeed(0);
 		// bulletAppState.setDebugEnabled(true);
 		// bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
 
